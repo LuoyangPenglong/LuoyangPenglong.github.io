@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--accent: #F39C12; --accent-dark: #cd7600;"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>约翰·卡特 | Web 设计师</title>
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --text: #1A1A1A;
+      --accent: #F39C12;
+      --accent-dark: #D35400;
+      --card-bg: #F8F8F8;
+      --border: #E0E0E0;
+      --muted: #666666;
+      --max-width: 1200px;
+      --radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    h1 { font-size: 48px; font-weight: 700; line-height: 1.2; }
+    h2 { font-size: 32px; font-weight: 600; line-height: 1.3; }
+    h3 { font-size: 22px; font-weight: 500; line-height: 1.4; }
+    p { font-size: 16px; font-weight: 400; line-height: 1.6; color: var(--muted); }
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+    .section { padding: 80px 0; }
+    .navbar {
+      position: sticky; top: 0; z-index: 1000;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 700; font-size: 22px; display: flex; align-items: center; gap: 8px; }
+    .logo-icon { width: 36px; height: 36px; border: 3px solid var(--text); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .nav-links { display: flex; gap: 8px; list-style: none; background: var(--card-bg); padding: 6px; border-radius: 50px; }
+    .nav-links a { font-size: 15px; font-weight: 500; color: var(--muted); position: relative; transition: all 0.25s ease; padding: 10px 22px; border-radius: 50px; display: inline-block; }
+    .nav-links a:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+    .nav-links a.active { color: #fff; background: var(--accent); font-weight: 600; box-shadow: 0 2px 8px rgba(243, 156, 18, 0.35); }
+    .nav-email { width: 42px; height: 42px; background: var(--text); color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; width: 30px; }
+    .burger span { display: block; height: 3px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+    .btn-outline:hover { background: var(--accent); color: #fff; }
+    .btn-dark { background: var(--text); color: #fff; }
+    .btn-dark:hover { background: #333; }
+    .tab-section { display: none; animation: fadeIn 0.3s ease; }
+    .tab-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; min-height: calc(100vh - 180px); }
+    .hero-title { margin-bottom: 20px; }
+    .highlight { background: var(--accent); color: #fff; padding: 0 10px; }
+    .hero-subtitle { max-width: 520px; margin-bottom: 32px; }
+    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-image { background: #FFD54F; border-radius: var(--radius); overflow: hidden; display: flex; align-items: center; justify-content: center; height: 480px; }
+    .hero-image img { height: 100%; width: 100%; object-fit: cover; }
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 80px; }
+    .service-card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; }
+    .service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .service-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 16px; background: #eee; }
+    .service-card h3 { margin-bottom: 10px; }
+    .contact-cta { background: var(--accent); color: #fff; border-radius: var(--radius); padding: 32px 24px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; }
+    .contact-cta h3 { color: #fff; }
+    .contact-cta p { color: rgba(255,255,255,0.9); }
+    .contact-cta .btn-dark { width: 100%; justify-content: center; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; margin-bottom: 100px; }
+    .about-image { border-radius: 50%; overflow: hidden; width: 420px; height: 420px; margin: 0 auto; background: #FF6B6B; }
+    .about-image img { width: 100%; height: 100%; object-fit: cover; }
+    .about-content h2 { margin-bottom: 20px; }
+    .about-content > p { margin-bottom: 32px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+    .stat-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; background: #fff; }
+    .stat-icon { width: 22px; height: 22px; border-radius: 5px; margin-bottom: 12px; }
+    .stat-icon.purple { background: #7B61FF; }
+    .stat-icon.red { background: #FF6B6B; }
+    .testimonial { max-width: 900px; margin: 0 auto; text-align: center; }
+    .testimonial h2 { margin-bottom: 16px; }
+    .testimonial-intro { max-width: 640px; margin: 0 auto 48px; }
+    .testimonial-card { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; text-align: left; position: relative; }
+    .quote-icon { width: 48px; height: 48px; background: var(--text); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px; }
+    .testimonial-card p { font-size: 18px; margin-bottom: 24px; color: var(--text); }
+    .testimonial-avatar { width: 260px; height: 260px; border-radius: 50%; overflow: hidden; background: #FF6B6B; margin: 0 auto; }
+    .testimonial-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
+    .link-arrow { color: var(--text); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .link-arrow:hover { color: var(--accent); }
+    .articles-list { display: flex; flex-direction: column; gap: 0; }
+    .article-item { display: grid; grid-template-columns: 180px 1fr; gap: 32px; padding: 32px 0; border-bottom: 1px solid var(--border); }
+    .article-thumb { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; height: 140px; }
+    .article-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .article-meta img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .article-meta span { font-size: 14px; color: var(--muted); }
+    .article-content h3 { margin-bottom: 8px; font-size: 24px; }
+    .portfolio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
+    .portfolio-card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fff; }
+    .portfolio-info { padding: 32px; }
+    .portfolio-brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .portfolio-tag { display: inline-block; background: var(--text); color: #fff; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+    .portfolio-info h3 { font-size: 26px; margin-bottom: 12px; }
+    .portfolio-info p { margin-bottom: 20px; }
+    .portfolio-link { color: var(--text); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .portfolio-link:hover { color: var(--accent); }
+    .portfolio-image { height: 320px; background: #7B61FF; display: flex; align-items: center; justify-content: center; }
+    .portfolio-card:nth-child(even) .portfolio-image { background: #2196F3; }
+    .portfolio-image img { width: 100%; height: 100%; object-fit: cover; }
+    .footer { background: var(--text); color: #fff; padding: 60px 0 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 40px; margin-bottom: 40px; }
+    .footer-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+    .footer-logo { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: #F8C471; }
+    .footer-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .footer p { color: #aaa; font-size: 15px; }
+    .footer h4 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: #aaa; font-size: 15px; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-contact { display: flex; flex-direction: column; gap: 10px; }
+    .footer-contact a { color: #aaa; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+    .footer-contact a:hover { color: var(--accent); }
+    .social-links { display: flex; gap: 12px; margin-top: 20px; }
+    .social-links a { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; }
+    .social-links a.fb { background: #3B82F6; }
+    .social-links a.tw { background: #3B82F6; }
+    .social-links a.ig { background: #FF6B6B; }
+    .social-links a.yt { background: #FF6B6B; }
+    .social-links a.li { background: #FF6B6B; }
+    .copyright { text-align: center; border-top: 1px solid #333; padding-top: 24px; color: #888; font-size: 14px; }
+
+    /* ====== 抖音作品 ====== */
+    .douyin-list { display: flex; flex-direction: column; gap: 0; }
+    .douyin-item {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 32px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s;
+      border-radius: 0;
+      cursor: pointer;
+      align-items: center;
+    }
+    .douyin-item:hover {
+      background: var(--card-bg);
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+      border-radius: 12px;
+    }
+    .douyin-thumb {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 200px;
+      background: #111;
+    }
+    .douyin-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .douyin-thumb .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .douyin-item:hover .play-icon {
+      background: #FE2C55;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    .douyin-thumb .play-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: #fff;
+      margin-left: 3px;
+    }
+    .douyin-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .douyin-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FE2C55, #25F4EE);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+      font-size: 14px;
+    }
+    .douyin-meta .source {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .douyin-meta .date {
+      font-size: 18px;
+      color: var(--muted);
+      margin-left: 8px;
+    }
+    .douyin-content h3 {
+      font-size: 38px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.3;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .douyin-content p {
+      font-size: 24px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .douyin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      font-size: 14px;
+      color: #FE2C55;
+      font-weight: 600;
+    }
+    .douyin-badge svg { width: 18px; height: 18px; fill: #FE2C55; }
+
+    @media (max-width: 768px) {
+      .douyin-item { grid-template-columns: 1fr; gap: 16px; }
+      .douyin-thumb { height: 220px; }
+      .douyin-content h3 { font-size: 24px; }
+      .douyin-content p { font-size: 16px; }
+      .douyin-meta .date { font-size: 14px; }
+    }
+
+    /* ====== 编辑模式样式 ====== */
+    .edit-toolbar {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      z-index: 9999;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 160px;
+    }
+    .edit-toolbar .toolbar-title {
+      font-size: 12px;
+      color: #888;
+      padding: 4px 10px 2px;
+      font-weight: 600;
+    }
+    .edit-toolbar button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s;
+    }
+    .edit-toolbar button:hover { background: #f5f5f5; }
+    .edit-toolbar button.active { background: #FFF3E0; color: #D35400; font-weight: 600; }
+    .edit-toolbar button .icon { font-size: 16px; }
+    .edit-toolbar .divider { height: 1px; background: #eee; margin: 4px 0; }
+
+    /* 编辑模式下的可编辑元素高亮 */
+    body.edit-mode .editable {
+      position: relative;
+      cursor: text;
+      transition: outline 0.15s, background 0.15s;
+    }
+    body.edit-mode .editable:hover {
+      outline: 2px dashed var(--accent);
+      outline-offset: 3px;
+      background: rgba(243, 156, 18, 0.06);
+    }
+    body.edit-mode .editable:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      background: rgba(243, 156, 18, 0.1);
+    }
+
+    /* 编辑提示气泡 */
+    .edit-hint {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1A1A1A;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 14px;
+      z-index: 9998;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+    }
+    .edit-hint .dot {
+      width: 8px; height: 8px;
+      background: #4CAF50;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* 保存状态提示 */
+    .save-toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4CAF50;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 10000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translate(-50%, -20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* 颜色选择器弹窗 */
+    .color-picker-popover {
+      position: fixed;
+      z-index: 10001;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 16px;
+      min-width: 220px;
+    }
+    .color-picker-popover h4 {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .color-picker-popover .color-swatches {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .color-swatches .swatch {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s;
+    }
+    .color-swatches .swatch:hover { transform: scale(1.15); }
+    .color-swatches .swatch.selected { border-color: #333; }
+    .color-picker-popover input[type="color"] {
+      width: 100%;
+      height: 36px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: none;
+    }
+    .color-picker-popover .popover-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px; height: 24px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 18px;
+      color: #999;
+      border-radius: 4px;
+    }
+    .color-picker-popover .popover-close:hover { background: #f5f5f5; color: #333; }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 34px; }
+      h2 { font-size: 26px; }
+      h3 { font-size: 20px; }
+      .nav-links { position: fixed; top: 70px; left: 16px; right: 16px; background: var(--card-bg); flex-direction: column; padding: 12px; gap: 6px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); transform: translateY(-150%); transition: transform 0.3s ease; border: 1px solid var(--border); }
+      .nav-links.open { transform: translateY(0); }
+      .nav-links a { width: 100%; text-align: center; padding: 12px; }
+      .burger { display: flex; }
+      .nav-email { display: none; }
+      .hero, .about-grid, .testimonial-card { grid-template-columns: 1fr; }
+      .hero-image { order: -1; height: 320px; }
+      .services-grid, .stats-grid, .portfolio-grid { grid-template-columns: 1fr; }
+      .about-image { width: 280px; height: 280px; }
+      .article-item { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .section { padding: 60px 0; }
+      .edit-toolbar { top: auto; bottom: 20px; right: 20px; left: 20px; flex-direction: row; flex-wrap: wrap; min-width: auto; }
+      .edit-toolbar .toolbar-title { display: none; }
+      .edit-toolbar .divider { display: none; }
+    }
+    @media (max-width: 480px) {
+      .hero-buttons { flex-direction: column; }
+      .btn { width: 100%; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="logo" onclick="showTab('home')"><span class="editable" data-edit="logo-text">洛阳丶鹏龙</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="editable" data-edit="nav-home" data-tab="home">首页</a></li>
+        <li><a href="#about" class="editable" data-edit="nav-about" data-tab="about">关于我</a></li>
+        <li><a href="#articles" class="editable" data-edit="nav-articles" data-tab="articles">我的文章</a></li>
+        <li><a href="#portfolio" class="editable active" data-edit="nav-portfolio" data-tab="portfolio">我的作品</a></li>
+        <li><a href="#douyin" class="editable" data-edit="nav-douyin" data-tab="douyin">抖音作品</a></li>
+      </ul>
+      <a href="mailto:721751136@qq.com" class="nav-email" aria-label="发送邮件"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></a>
+      <div class="burger" id="burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <section id="home" class="tab-section">
+    <div class="container">
+      <div class="hero">
+        <div class="hero-content">
+          <h1 class="hero-title">我是 <span class="highlight editable" data-edit="hero-name">洛阳丶鹏龙</span>，<br>来自<span class="highlight editable" data-edit="hero-city">神都 洛阳</span> <br><span class="editable" data-edit="hero-role">一位正在学习AI的小白</span></h1>
+          <p class="hero-subtitle editable" data-edit="hero-subtitle">Lacus, adipiscing lectus convallis purus aliquet cursus magnaol montes augue donec cras turpis ultrices nulla sed doler.</p>
+          <div class="hero-buttons">
+            <a href="mailto:721751136@qq.com" class="btn btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><span class="editable" data-edit="btn-contact">联系我们</span></a>
+            <button class="btn btn-outline" onclick="showTab('portfolio')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg><span class="editable" data-edit="btn-portfolio">查看我的作品</span></button>
+          </div>
+        </div>
+        <div class="hero-image"><img src="hero-image.png" alt="约翰·卡特头像"></div>
+      </div>
+      <div class="services-grid">
+        <div class="service-card"><img src="https://picsum.photos/seed/web/400/200" alt="网页设计"><h3 class="editable" data-edit="svc1-title">网页设计</h3><p class="editable" data-edit="svc1-desc">Lacus adipiscing lectus convallis purus aliquet cursus magnaol dolori montes augue donec cras.</p></div>
+        <div class="service-card"><img src="https://picsum.photos/seed/uiux/400/200" alt="UI/UX设计"><h3 class="editable" data-edit="svc2-title">UI/UX设计</h3><p class="editable" data-edit="svc2-desc">Arcu venenatis sit nullam pellentesq varius urna non sed aliquam colemir imperdiet amet imperdiet.</p></div>
+        <div class="service-card"><img src="https://picsum.photos/seed/product/400/200" alt="产品设计"><h3 class="editable" data-edit="svc3-title">产品设计</h3><p class="editable" data-edit="svc3-desc">Arcu venenatis sit nullam pellentesq varius urna non sed aliquam colemir imperdiet amet imperdiet.</p></div>
+        <div class="service-card"><img src="https://picsum.photos/seed/research/400/200" alt="用户研究"><h3 class="editable" data-edit="svc4-title">用户研究</h3><p class="editable" data-edit="svc4-desc">Lacus adipiscing lectus convallis purus aliquet cursus magnaol dolori montes augue donec cras.</p></div>
+        <div class="service-card"><img src="https://picsum.photos/seed/motion/400/200" alt="动态图形"><h3 class="editable" data-edit="svc5-title">动态图形</h3><p class="editable" data-edit="svc5-desc">Lacus adipiscing lectus convallis purus aliquet cursus magnaol dolori montes augue donec cras.</p></div>
+        <div class="contact-cta"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><h3 class="editable" data-edit="cta-title">联系我们</h3><p class="editable" data-edit="cta-desc">寻找其他服务？ 与我联系，有一个很高的机会，我将能够提供帮助！</p><a href="mailto:721751136@qq.com" class="btn btn-dark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><span class="editable" data-edit="cta-btn">联系我们</span></a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="tab-section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image"><img src="https://picsum.photos/seed/aboutman/500/500" alt="约翰·卡特"></div>
+        <div class="about-content">
+          <h2><span class="editable" data-edit="about-title1">这一切的幕后黑手是谁</span> <br><span class="highlight editable" data-edit="about-title2">伟大的工作？</span></h2>
+          <p class="editable" data-edit="about-desc">Eu pellentesque arcu ornare velit faucibus egestas gravida sed in purus enim molestie gravida imperdiet integer.</p>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon purple"></div><h3 class="editable" data-edit="stat1-title">15年以上的经验</h3><p class="editable" data-edit="stat1-desc">Eu pellentesque arcu ornare velit faucibus egestas me gravida sed in purus enim molestie gravida.</p></div>
+            <div class="stat-card"><div class="stat-icon red"></div><h3 class="editable" data-edit="stat2-title">100+成功项目</h3><p class="editable" data-edit="stat2-desc">Eu pellentesque arcu ornare velit faucibus egestas me gravida sed in purus enim molestie gravida.</p></div>
+          </div>
+          <a href="#" class="btn btn-dark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span class="editable" data-edit="about-btn">更多关于我</span></a>
+        </div>
+      </div>
+      <div class="testimonial section" style="padding-top:0;">
+        <h2><span class="editable" data-edit="testi-title1">我的客户怎么说</span> <br><span class="editable" data-edit="testi-title2">关于</span> <span class="highlight editable" data-edit="testi-title3">我的工作</span></h2>
+        <p class="testimonial-intro editable" data-edit="testi-intro">Lacus, adipiscing lectus convallis purus aliquet cursus magnaol montes augue donec cras turpis ultrices nulla sed doler.</p>
+        <div class="testimonial-card">
+          <div><div class="quote-icon">" </div><p class="editable" data-edit="testi-quote">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim et minim quis nostrud exercitation ullamco laboris.</p><h3 class="editable" data-edit="testi-name">莉莉·伍兹</h3><span class="editable" data-edit="testi-role">Google 设计副总裁</span></div>
+          <div class="testimonial-avatar"><img src="https://picsum.photos/seed/lily/400/400" alt="莉莉·伍兹"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="articles" class="tab-section">
+    <div class="container">
+      <div class="section-header"><h2 class="editable" data-edit="articles-title">文章 &amp; 新闻</h2><a href="#" class="link-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg><span class="editable" data-edit="articles-more">浏览所有文章</span></a></div>
+      <div class="articles-list">
+        <article class="article-item" style="position: relative; cursor: pointer;" onclick="window.open('https://www.douyin.com/video/7679709606751222120', '_blank')"><div class="article-thumb"><img src="https://picsum.photos/seed/tool/300/220" alt="设计工具"></div><div class="article-content"><div class="article-meta"><img src="https://picsum.photos/seed/john/80/80" alt="约翰·卡特"><span><strong class="editable" data-edit="art1-author">抖音作品</strong></span><span class="editable" data-edit="art1-date">2026年09月04日</span></div><h3 class="editable" data-edit="art1-title">如果人生有措，那一定是色林措。</h3><p class="editable" data-edit="art1-desc">Lorem ipsum dolor sit amet dolor consectetur adipiscing elit ectus.</p></div></article>
+        
+        
+        
+        <article class="article-item"><div class="article-thumb"><img src="https://picsum.photos/seed/responsive/300/220" alt="响应式设计"></div><div class="article-content"><div class="article-meta"><img src="https://picsum.photos/seed/john5/80/80" alt="约翰·卡特"><span><strong class="editable" data-edit="art5-author">约翰·卡特</strong></span><span class="editable" data-edit="art5-date">2022年10月10日</span></div><h3 class="editable" data-edit="art5-title">响应式设计的最佳实践与常见误区</h3><p class="editable" data-edit="art5-desc">Lorem ipsum dolor sit amet dolor consectetur adipiscing elit ectus.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="portfolio" class="tab-section active">
+    <div class="container">
+      <h2 style="text-align:center; margin-bottom:48px;"><span class="editable" data-edit="port-title1">看看我的</span><br><span class="highlight editable" data-edit="port-title2">设计作品集</span></h2>
+      <div class="portfolio-grid" style="max-width: 600px; margin: 0 auto;">
+        <div class="portfolio-card"><div class="portfolio-info"><div class="portfolio-brand"><svg width="28" height="28" viewBox="0 0 24 24" fill="#FF9800"><circle cx="12" cy="12" r="10"></circle></svg><span class="editable" data-edit="port5-brand">该吃饭了</span></div><span class="portfolio-tag editable" data-edit="port5-tag">网页应用</span><h3 class="editable" data-edit="port5-title">该吃饭了 - 智能点餐助手</h3><p class="editable" data-edit="port5-desc">一款帮你解决"今天吃什么"难题的点餐小应用，支持随机推荐、分类浏览和点餐清单管理。</p><a href="dining/index.html" target="_blank" class="portfolio-link editable" data-edit="port5-link">立即体验 →</a></div><div class="portfolio-image"><img src="https://picsum.photos/seed/food/600/400" alt="该吃饭了项目"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="douyin" class="tab-section">
+    <div class="container">
+      <div class="section-header">
+        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="window.open('https://www.douyin.com/user/MS4wLjABAAAAvHr8fR2g6E4VmXi3Oxm889XXdKM-qpnjnsjF9iCGyFo?from_tab_name=main&amp;relation=0&amp;vid=7679709606751222120', '_blank')">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text)"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"></path></svg>
+          <h2 class="editable" data-edit="douyin-title" style="">我的抖音主页</h2>
+        </div>
+        <a href="https://v.douyin.com/onP-pDpBEb0/" target="_blank" class="link-arrow">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          <span>前往抖音主页</span>
+        </a>
+      </div>
+      <div class="douyin-list">
+        <a href="https://v.douyin.com/onP-pDpBEb0/" target="_blank" class="douyin-item">
+          <div class="douyin-thumb">
+            <img src="https://picsum.photos/seed/selinco/600/400" alt="色林错">
+            <div class="play-icon">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+            </div>
+          </div>
+          <div class="douyin-content">
+            <div class="douyin-meta">
+              <div class="douyin-avatar">抖</div>
+              <span class="source editable" data-edit="dy1-source">抖音作品</span>
+              <span class="date editable" data-edit="dy1-date">2026年09月04日</span>
+            </div>
+            <h3 class="editable" data-edit="dy1-title">如果人生有错，那一定是色林错。</h3>
+            <p class="editable" data-edit="dy1-desc">如果人生有错，那一定是色林错🩵🩵</p>
+            <div class="douyin-badge">
+              <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"></path></svg>
+              在抖音观看视频
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-brand"><div class="footer-logo"><img src="https://picsum.photos/seed/logo/80/80" alt=""></div><span class="editable" data-edit="foot-brand">洛阳丶鹏龙</span></div><p class="editable" data-edit="foot-desc">Lorem ipsum dolor amet consecte adipiscing elit. Lectus mattis nunc.</p><div class="social-links"><a href="#" class="fb">f</a><a href="#" class="tw">t</a><a href="#" class="ig">i</a><a href="#" class="yt">y</a><a href="#" class="li">in</a></div></div>
+        <div><h4 class="editable" data-edit="foot-col1-title">页数</h4><ul class="footer-links"><li><a href="#" onclick="showTab('home')" class="editable" data-edit="foot-col1-1">首页</a></li><li><a href="#" onclick="showTab('about')" class="editable" data-edit="foot-col1-2">关于我们</a></li><li><a href="#" onclick="showTab('articles')" class="editable" data-edit="foot-col1-3">联络方式</a></li><li><a href="#" onclick="showTab('portfolio')" class="editable" data-edit="foot-col1-4">投资组合</a></li><li><a href="#" onclick="showTab('douyin')" class="editable" data-edit="foot-col1-6">抖音作品</a></li><li><a href="#" class="editable" data-edit="foot-col1-5">单个项目</a></li></ul></div>
+        <div><h4 class="editable" data-edit="foot-col2-title">实用工具页面</h4><ul class="footer-links"><li><a href="#" class="editable" data-edit="foot-col2-1">风格指南</a></li><li><a href="#" class="editable" data-edit="foot-col2-2">从这里开始</a></li><li><a href="#" class="editable" data-edit="foot-col2-3">404未找到</a></li><li><a href="#" class="editable" data-edit="foot-col2-4">密码保护</a></li><li><a href="#" class="editable" data-edit="foot-col2-5">许可证</a></li><li><a href="#" class="editable" data-edit="foot-col2-6">Changelog</a></li></ul></div>
+        <div><h4 class="editable" data-edit="foot-col3-title">联系我们</h4><div class="footer-contact"><a href="mailto:721751136@qq.com"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><span class="editable" data-edit="foot-email">721751136@QQ.com</span></a><a href="tel:+91-9000057810"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg><span class="editable" data-edit="foot-phone">18697794499</span></a></div></div>
+      </div>
+      <div class="copyright editable" data-edit="copyright">由 约翰·卡特 设计</div>
+    </div>
+  </footer>
+
+  <!-- 编辑工具栏 -->
+  <div class="edit-toolbar" id="editToolbar">
+    <div class="toolbar-title">可视化编辑</div>
+    <button id="toggleEditBtn" onclick="toggleEditMode()" class="">
+      <span class="icon">✏️</span>
+      <span id="editBtnText">开启编辑模式</span>
+    </button>
+    <div class="divider"></div>
+    <button onclick="changeThemeColor()" id="themeColorBtn" style="opacity: 0.5; pointer-events: none;">
+      <span class="icon">🎨</span>
+      <span>主题颜色</span>
+    </button>
+    <button onclick="resetEdits()" id="resetBtn" style="opacity: 0.5; pointer-events: none;">
+      <span class="icon">↺</span>
+      <span>重置内容</span>
+    </button>
+    <div class="divider"></div>
+    <button onclick="exportHTML()" id="exportBtn" style="opacity: 0.5; pointer-events: none;">
+      <span class="icon">💾</span>
+      <span>导出 HTML</span>
+    </button>
+  </div>
+
+  <script>
+    // ===== 页面切换 =====
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-section').forEach(section => section.classList.remove('active'));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.tab === tabId) link.classList.add('active');
+      });
+      document.getElementById('navLinks').classList.remove('open');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function toggleMenu() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        showTab(this.dataset.tab);
+      });
+    });
+
+    // ===== 可视化编辑功能 =====
+    let editMode = false;
+    const STORAGE_KEY = 'portfolio_edits_v1';
+    const THEME_KEY = 'portfolio_theme_v1';
+    let saveTimeout = null;
+
+    function toggleEditMode() {
+      editMode = !editMode;
+      document.body.classList.toggle('edit-mode', editMode);
+      const btn = document.getElementById('toggleEditBtn');
+      const btnText = document.getElementById('editBtnText');
+      const themeBtn = document.getElementById('themeColorBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const exportBtn = document.getElementById('exportBtn');
+
+      if (editMode) {
+        btn.classList.add('active');
+        btnText.textContent = '关闭编辑模式';
+        themeBtn.style.opacity = '1';
+        themeBtn.style.pointerEvents = 'auto';
+        resetBtn.style.opacity = '1';
+        resetBtn.style.pointerEvents = 'auto';
+        exportBtn.style.opacity = '1';
+        exportBtn.style.pointerEvents = 'auto';
+        enableEditing();
+        showEditHint();
+      } else {
+        btn.classList.remove('active');
+        btnText.textContent = '开启编辑模式';
+        themeBtn.style.opacity = '0.5';
+        themeBtn.style.pointerEvents = 'none';
+        resetBtn.style.opacity = '0.5';
+        resetBtn.style.pointerEvents = 'none';
+        exportBtn.style.opacity = '0.5';
+        exportBtn.style.pointerEvents = 'none';
+        disableEditing();
+        hideEditHint();
+      }
+    }
+
+    function enableEditing() {
+      document.querySelectorAll('.editable').forEach(el => {
+        el.setAttribute('contenteditable', 'true');
+        el.addEventListener('input', handleEdit);
+        el.addEventListener('blur', saveEdits);
+      });
+    }
+
+    function disableEditing() {
+      document.querySelectorAll('.editable').forEach(el => {
+        el.removeAttribute('contenteditable');
+        el.removeEventListener('input', handleEdit);
+        el.removeEventListener('blur', saveEdits);
+      });
+    }
+
+    function handleEdit(e) {
+      // 实时保存（防抖）
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(saveEdits, 500);
+    }
+
+    function saveEdits() {
+      const edits = {};
+      document.querySelectorAll('.editable').forEach(el => {
+        const key = el.dataset.edit;
+        if (key) edits[key] = el.innerHTML;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(edits));
+      showSaveToast('已自动保存');
+    }
+
+    function loadEdits() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const edits = JSON.parse(saved);
+          document.querySelectorAll('.editable').forEach(el => {
+            const key = el.dataset.edit;
+            if (key && edits[key] !== undefined) {
+              el.innerHTML = edits[key];
+            }
+          });
+        } catch(e) { console.warn('加载保存内容失败', e); }
+      }
+      // 加载主题色
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme) {
+        applyThemeColor(savedTheme);
+      }
+    }
+
+    function resetEdits() {
+      if (!confirm('确定要重置所有文字内容吗？')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+
+    function showSaveToast(msg) {
+      // 移除已有的提示
+      const existing = document.querySelector('.save-toast');
+      if (existing) existing.remove();
+
+      const toast = document.createElement('div');
+      toast.className = 'save-toast';
+      toast.textContent = '✓ ' + msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 1500);
+    }
+
+    function showEditHint() {
+      const hint = document.createElement('div');
+      hint.className = 'edit-hint';
+      hint.id = 'editHint';
+      hint.innerHTML = '<span class="dot"></span> 编辑模式已开启 — 点击任意文字即可修改';
+      document.body.appendChild(hint);
+      setTimeout(() => {
+        const h = document.getElementById('editHint');
+        if (h) h.remove();
+      }, 4000);
+    }
+
+    function hideEditHint() {
+      const hint = document.getElementById('editHint');
+      if (hint) hint.remove();
+    }
+
+    // ===== 主题颜色 =====
+    function changeThemeColor() {
+      // 关闭已有的颜色选择器
+      const existing = document.querySelector('.color-picker-popover');
+      if (existing) { existing.remove(); return; }
+
+      const popover = document.createElement('div');
+      popover.className = 'color-picker-popover';
+      popover.innerHTML = `
+        <button class="popover-close" onclick="this.parentElement.remove()">×</button>
+        <h4>选择主题色</h4>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#F39C12" data-color="#F39C12" onclick="pickColor('#F39C12')"></div>
+          <div class="swatch" style="background:#E74C3C" data-color="#E74C3C" onclick="pickColor('#E74C3C')"></div>
+          <div class="swatch" style="background:#9B59B6" data-color="#9B59B6" onclick="pickColor('#9B59B6')"></div>
+          <div class="swatch" style="background:#3498DB" data-color="#3498DB" onclick="pickColor('#3498DB')"></div>
+          <div class="swatch" style="background:#2ECC71" data-color="#2ECC71" onclick="pickColor('#2ECC71')"></div>
+          <div class="swatch" style="background:#1ABC9C" data-color="#1ABC9C" onclick="pickColor('#1ABC9C')"></div>
+          <div class="swatch" style="background:#E91E63" data-color="#E91E63" onclick="pickColor('#E91E63')"></div>
+          <div class="swatch" style="background:#FF5722" data-color="#FF5722" onclick="pickColor('#FF5722')"></div>
+          <div class="swatch" style="background:#607D8B" data-color="#607D8B" onclick="pickColor('#607D8B')"></div>
+          <div class="swatch" style="background:#795548" data-color="#795548" onclick="pickColor('#795548')"></div>
+          <div class="swatch" style="background:#00BCD4" data-color="#00BCD4" onclick="pickColor('#00BCD4')"></div>
+          <div class="swatch" style="background:#FFC107" data-color="#FFC107" onclick="pickColor('#FFC107')"></div>
+        </div>
+        <h4 style="margin-top:8px;">自定义颜色</h4>
+        <input type="color" id="customColor" value="${getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#F39C12'}">
+      `;
+
+      // 定位到按钮旁边
+      const btn = document.getElementById('themeColorBtn');
+      const rect = btn.getBoundingClientRect();
+      popover.style.top = (rect.bottom + 8) + 'px';
+      popover.style.right = (window.innerWidth - rect.right) + 'px';
+
+      document.body.appendChild(popover);
+
+      // 自定义颜色
+      setTimeout(() => {
+        const colorInput = document.getElementById('customColor');
+        if (colorInput) {
+          colorInput.addEventListener('input', function(e) {
+            pickColor(e.target.value);
+          });
+        }
+      }, 10);
+
+      // 点击外部关闭
+      setTimeout(() => {
+        document.addEventListener('click', function closePopover(e) {
+          if (!popover.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+            popover.remove();
+            document.removeEventListener('click', closePopover);
+          }
+        });
+      }, 10);
+    }
+
+    function pickColor(color) {
+      applyThemeColor(color);
+      localStorage.setItem(THEME_KEY, color);
+      showSaveToast('主题色已更新');
+
+      // 更新选中状态
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+      const swatch = document.querySelector(`.swatch[data-color="${color}"]`);
+      if (swatch) swatch.classList.add('selected');
+    }
+
+    function applyThemeColor(color) {
+      document.documentElement.style.setProperty('--accent', color);
+      // 计算暗色版本
+      const darkColor = shadeColor(color, -15);
+      document.documentElement.style.setProperty('--accent-dark', darkColor);
+    }
+
+    function shadeColor(color, percent) {
+      const num = parseInt(color.replace('#',''), 16);
+      const amt = Math.round(2.55 * percent);
+      const R = (num >> 16) + amt;
+      const G = (num >> 8 & 0x00FF) + amt;
+      const B = (num & 0x0000FF) + amt;
+      return '#' + (
+        0x1000000 +
+        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+        (B < 255 ? (B < 1 ? 0 : B) : 255)
+      ).toString(16).slice(1);
+    }
+
+    // ===== 导出 HTML =====
+    function exportHTML() {
+      // 先保存一次
+      saveEdits();
+
+      // 克隆整个文档
+      const clone = document.documentElement.cloneNode(true);
+
+      // 移除编辑工具栏和相关脚本
+      const toolbar = clone.querySelector('#editToolbar');
+      if (toolbar) toolbar.remove();
+
+      // 移除编辑相关的 class 和属性
+      clone.classList.remove('edit-mode');
+      clone.querySelectorAll('.editable').forEach(el => {
+        el.removeAttribute('contenteditable');
+        el.classList.remove('editable');
+        el.removeAttribute('data-edit');
+      });
+
+      // 构建完整的 HTML
+      const doctype = '<!DOCTYPE html>\n';
+      const htmlStr = '<html lang="zh-CN">\n' + clone.innerHTML + '\n</html>';
+      const fullHTML = doctype + htmlStr;
+
+      // 下载
+      const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'portfolio-edited.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showSaveToast('HTML 文件已导出');
+    }
+
+    // ===== 初始化 =====
+    loadEdits();
+  </script>
+</body>
+</html>
