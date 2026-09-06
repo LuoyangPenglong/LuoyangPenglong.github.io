@@ -2,7 +2,7 @@
 <html lang="zh-CN" style="--accent: #F39C12; --accent-dark: #cd7600;"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>约翰·卡特 | Web 设计师</title>
+  <title>洛阳丶鹏龙的个人网站</title>
   <style>
     :root {
       --bg: #FFFFFF;
@@ -452,10 +452,10 @@
     <div class="container nav-inner">
       <a href="#" class="logo" onclick="showTab('home')"><span class="editable" data-edit="logo-text">洛阳丶鹏龙</span></a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="#home" class="editable" data-edit="nav-home" data-tab="home">首页</a></li>
+        <li><a href="#home" class="editable active" data-edit="nav-home" data-tab="home">首页</a></li>
         <li><a href="#about" class="editable" data-edit="nav-about" data-tab="about">关于我</a></li>
         <li><a href="#articles" class="editable" data-edit="nav-articles" data-tab="articles">我的文章</a></li>
-        <li><a href="#portfolio" class="editable active" data-edit="nav-portfolio" data-tab="portfolio">我的作品</a></li>
+        <li><a href="#portfolio" class="editable" data-edit="nav-portfolio" data-tab="portfolio">我的作品</a></li>
         <li><a href="#douyin" class="editable" data-edit="nav-douyin" data-tab="douyin">抖音作品</a></li>
       </ul>
       <a href="mailto:721751136@qq.com" class="nav-email" aria-label="发送邮件"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></a>
@@ -463,7 +463,7 @@
     </div>
   </nav>
 
-  <section id="home" class="tab-section">
+  <section id="home" class="tab-section active">
     <div class="container">
       <div class="hero">
         <div class="hero-content">
@@ -525,7 +525,7 @@
     </div>
   </section>
 
-  <section id="portfolio" class="tab-section active">
+  <section id="portfolio" class="tab-section">
     <div class="container">
       <h2 style="text-align:center; margin-bottom:48px;"><span class="editable" data-edit="port-title1">看看我的</span><br><span class="highlight editable" data-edit="port-title2">设计作品集</span></h2>
       <div class="portfolio-grid" style="max-width: 600px; margin: 0 auto;">
@@ -587,29 +587,6 @@
       <div class="copyright editable" data-edit="copyright">由 约翰·卡特 设计</div>
     </div>
   </footer>
-
-  <!-- 编辑工具栏 -->
-  <div class="edit-toolbar" id="editToolbar">
-    <div class="toolbar-title">可视化编辑</div>
-    <button id="toggleEditBtn" onclick="toggleEditMode()" class="">
-      <span class="icon">✏️</span>
-      <span id="editBtnText">开启编辑模式</span>
-    </button>
-    <div class="divider"></div>
-    <button onclick="changeThemeColor()" id="themeColorBtn" style="opacity: 0.5; pointer-events: none;">
-      <span class="icon">🎨</span>
-      <span>主题颜色</span>
-    </button>
-    <button onclick="resetEdits()" id="resetBtn" style="opacity: 0.5; pointer-events: none;">
-      <span class="icon">↺</span>
-      <span>重置内容</span>
-    </button>
-    <div class="divider"></div>
-    <button onclick="exportHTML()" id="exportBtn" style="opacity: 0.5; pointer-events: none;">
-      <span class="icon">💾</span>
-      <span>导出 HTML</span>
-    </button>
-  </div>
 
   <script>
     // ===== 页面切换 =====
