@@ -334,8 +334,11 @@
     });
 
     // ====== 高德 Key 管理 ======
-    function getStoredKey() { return localStorage.getItem(LS_KEY) || ""; }
-    function getStoredCode() { return localStorage.getItem(LS_CODE) || ""; }
+    // 内置默认 Key(内置后打开即用,无需手动配置);localStorage 中存储的 Key 优先级更高
+    const DEFAULT_KEY = "74582c1b7fc122df51166dee8cb4d7f1";
+    const DEFAULT_CODE = "03f67c8beeda7e95d86046269ac97878";
+    function getStoredKey() { return localStorage.getItem(LS_KEY) || DEFAULT_KEY || ""; }
+    function getStoredCode() { return localStorage.getItem(LS_CODE) || DEFAULT_CODE || ""; }
     function saveKeyConfig(key, code) {
       localStorage.setItem(LS_KEY, key);
       if (code) localStorage.setItem(LS_CODE, code);
