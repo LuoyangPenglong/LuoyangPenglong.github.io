@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>相亲定位 · AI 评分</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+      min-height: 100vh;
+      color: #1f2937;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 16px 40px; }
+    h1 { font-size: 32px; margin-bottom: 8px; line-height: 1.2; }
+    .subtitle { color: #6b7280; margin-bottom: 20px; font-size: 15px; }
+
+    /* === Key 设置条 === */
+    .key-bar {
+      background: white;
+      border-bottom: 1px solid #f3e8ff;
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .key-bar .key-icon { font-size: 16px; }
+    .key-bar input {
+      flex: 1; min-width: 160px; max-width: 360px;
+      padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+      font-size: 13px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    .key-bar input:focus { outline: none; border-color: #ec4899; box-shadow: 0 0 0 2px rgba(236,72,153,0.1); }
+    .key-bar button {
+      padding: 6px 12px; border: none; border-radius: 6px;
+      background: #ec4899; color: white; font-size: 13px; cursor: pointer;
+    }
+    .key-bar button:hover { background: #db2777; }
+    .key-bar button.ghost { background: transparent; color: #6b7280; padding: 4px 8px; }
+    .key-bar button.ghost:hover { background: #f3f4f6; }
+    .key-bar .status { font-size: 12px; color: #059669; }
+    .key-bar .status.missing { color: #dc2626; }
+    .container-pad { padding-top: 16px; }
+
+    .card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04); margin-bottom: 16px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #374151; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;
+      font-family: inherit; background: white; color: #1f2937;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,0.1);
+    }
+    .field textarea { resize: vertical; min-height: 100px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn {
+      background: #ec4899; color: white; border: none; padding: 14px 24px; border-radius: 10px;
+      font-size: 16px; font-weight: 600; cursor: pointer; width: 100%;
+      transition: background 0.15s;
+    }
+    .btn:hover:not(:disabled) { background: #db2777; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: white; color: #ec4899; border: 1px solid #fbcfe8; }
+    .btn-secondary:hover:not(:disabled) { background: #fdf2f8; }
+    .hidden { display: none !important; }
+    .loading { text-align: center; padding: 48px 24px; }
+    .spinner {
+      width: 48px; height: 48px; border: 4px solid #fce7f3; border-top-color: #ec4899;
+      border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .result-grid .card { margin: 0; }
+    @media (max-width: 480px) { .result-grid { grid-template-columns: 1fr; } .row { grid-template-columns: 1fr; } }
+    .progress { height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 4px; transition: width 1s ease-out; }
+    .dim-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
+    .dim-label span:first-child { font-weight: 500; }
+    .dim-label span:last-child { color: #6b7280; }
+    .list-item { padding: 6px 0; display: flex; gap: 8px; font-size: 14px; line-height: 1.5; }
+    .footer { text-align: center; font-size: 12px; color: #9ca3af; margin-top: 24px; }
+    .error-box { border: 1px solid #fecaca; background: #fef2f2; }
+    .error-box h3 { color: #dc2626; margin-bottom: 8px; }
+    .error-box p { color: #7f1d1d; margin-bottom: 12px; line-height: 1.5; }
+    .hint { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; margin-top: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部 Key 设置条（sticky） -->
+  <div class="key-bar">
+    <span class="key-icon">🔑</span>
+    <input id="api-key-input" type="password" placeholder="DeepSeek API key（首次输入后自动保存）" autocomplete="off">
+    <button id="save-key-btn">保存</button>
+    <button id="toggle-key-btn" class="ghost" title="显示/隐藏 key">👁</button>
+    <span id="key-status" class="status missing">未设置</span>
+  </div>
+
+  <div class="container container-pad">
+
+    <!-- 表单 -->
+    <div id="form-section">
+      <h1>看清你在 <span style="color:#ec4899">相亲市场</span> 的位置</h1>
+      <p class="subtitle">9 项基本信息，AI 给你真实评分 + 情感建议</p>
+
+      <div class="card">
+        <form id="profile-form" autocomplete="off">
+          <div class="field">
+            <label>所在城市</label>
+            <input name="city" placeholder="如：上海" required>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>年龄</label>
+              <input name="age" type="number" min="18" max="80" value="25" required>
+            </div>
+            <div class="field">
+              <label>外形自评 (1-10)</label>
+              <input name="appearance" type="number" min="1" max="10" value="6" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>身高 (cm)</label>
+              <input name="heightCm" type="number" min="100" max="250" value="170" required>
+            </div>
+            <div class="field">
+              <label>体重 (kg)</label>
+              <input name="weightKg" type="number" min="20" max="300" value="60" required>
+            </div>
+          </div>
+          <div class="field">
+            <label>学历</label>
+            <select name="education" required>
+              <option value="">请选择</option>
+              <option>高中/中专</option>
+              <option>大专</option>
+              <option>本科</option>
+              <option>985/211 本科</option>
+              <option>硕士</option>
+              <option>985/211 硕士</option>
+              <option>博士</option>
+              <option>海外留学</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>工作 / 职业</label>
+            <input name="job" placeholder="如：互联网产品经理" required>
+          </div>
+          <div class="field">
+            <label>年收入（元）</label>
+            <input name="annualIncome" type="number" min="0" value="200000" required>
+          </div>
+          <div class="field">
+            <label>情感经历（18岁以后）</label>
+            <textarea name="relationshipHistory" placeholder="如：24 岁初恋一段 2 年和平分手；27 岁相亲 3 次无果"></textarea>
+          </div>
+          <button type="submit" class="btn" id="submit-btn">🚀 AI 给我评分</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden">
+      <div class="card loading">
+        <div class="spinner"></div>
+        <p style="font-weight: 500;">AI 正在分析你的资料...</p>
+        <p style="font-size: 12px; color: #9ca3af; margin-top: 8px;">大约 5-10 秒</p>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="hidden">
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+          <div id="score-wrap" style="position: relative; width: 140px; height: 140px; flex-shrink: 0;"></div>
+          <div style="flex: 1; min-width: 200px;">
+            <p style="color: #6b7280; font-size: 14px;">你的相亲市场综合分</p>
+            <p id="summary" style="font-size: 22px; font-weight: bold; color: #ec4899; margin: 4px 0 8px; line-height: 1.3;"></p>
+            <p id="profile-info" style="font-size: 12px; color: #9ca3af;"></p>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="margin-top: 16px;" onclick="location.reload()">🔄 重新测一次</button>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size: 18px; margin-bottom: 16px;">四维诊断</h2>
+        <div id="dimensions"></div>
+      </div>
+
+      <div class="result-grid">
+        <div class="card">
+          <h3 style="color: #059669; margin-bottom: 8px; font-size: 16px;">✨ 加分项</h3>
+          <ul id="strengths" style="list-style: none;"></ul>
+        </div>
+        <div class="card">
+          <h3 style="color: #ea580c; margin-bottom: 8px; font-size: 16px;">⚠️ 减分项</h3>
+          <ul id="weaknesses" style="list-style: none;"></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 12px; font-size: 16px;">💌 给你的情感建议</h3>
+        <p id="advice" style="line-height: 1.8; color: #374151; white-space: pre-line;"></p>
+      </div>
+
+      <p class="footer">评分基于 AI 模型，仅供娱乐参考 💗</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error" class="hidden">
+      <div class="card error-box">
+        <h3>出了点问题 😅</h3>
+        <p id="error-msg"></p>
+        <div id="error-hint" class="hint" style="display:none;">
+          <strong>可能是浏览器跨域拦截了请求（CORS）。</strong><br>
+          解决办法（任选其一）：<br>
+          1. 安装 Chrome 扩展 <a href="https://chromewebstore.google.com/detail/allow-cors/phalcmdaiagcdliggejpeeojdnpddggjm" target="_blank" style="color:#dc2626">Allow CORS</a>，打开开关后刷新页面<br>
+          2. 用 Safari / Firefox 试一下
+        </div>
+        <button class="btn" onclick="location.reload()" style="margin-top: 12px;">重新开始</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ============================================================
+    //  Key 管理（localStorage 持久化）
+    // ============================================================
+    const KEY_STORAGE = "deepseek_api_key";
+    const DIRECT_URL = "https://api.deepseek.com/v1/chat/completions";
+    const PROXY_URL = "https://corsproxy.io/?" + encodeURIComponent(DIRECT_URL);
+
+    function getKey() {
+      try { return localStorage.getItem(KEY_STORAGE) || ""; }
+      catch { return ""; }
+    }
+    function setKey(v) {
+      try { localStorage.setItem(KEY_STORAGE, v); } catch {}
+    }
+    function updateKeyBar() {
+      const k = getKey();
+      const status = document.getElementById('key-status');
+      const input = document.getElementById('api-key-input');
+      if (k) {
+        status.textContent = "✓ 已设置";
+        status.className = "status";
+        if (!input.value) input.value = k;
+      } else {
+        status.textContent = "未设置";
+        status.className = "status missing";
+      }
+    }
+
+    document.getElementById('save-key-btn').addEventListener('click', () => {
+      const v = document.getElementById('api-key-input').value.trim();
+      if (!v) {
+        alert('请先填 key');
+        return;
+      }
+      if (!v.startsWith('sk-')) {
+        if (!confirm('key 通常以 sk- 开头，确定要保存吗？')) return;
+      }
+      setKey(v);
+      updateKeyBar();
+      flashSaved();
+    });
+
+    function flashSaved() {
+      const btn = document.getElementById('save-key-btn');
+      const orig = btn.textContent;
+      btn.textContent = "✓ 已保存";
+      btn.style.background = "#10b981";
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = "";
+      }, 1200);
+    }
+
+    document.getElementById('toggle-key-btn').addEventListener('click', () => {
+      const input = document.getElementById('api-key-input');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    document.getElementById('api-key-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('save-key-btn').click();
+      }
+    });
+
+    // 初始化 key 状态
+    updateKeyBar();
+
+    // ============================================================
+    //  表单提交
+    // ============================================================
+    const form = document.getElementById('profile-form');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // 检查 key
+      const apiKey = getKey();
+      if (!apiKey) {
+        alert('请先在顶部填入 DeepSeek API key 并保存');
+        document.getElementById('api-key-input').focus();
+        return;
+      }
+
+      const fd = new FormData(form);
+      const profile = {
+        city: String(fd.get('city') || '').trim(),
+        age: Number(fd.get('age')),
+        heightCm: Number(fd.get('heightCm')),
+        weightKg: Number(fd.get('weightKg')),
+        appearance: Number(fd.get('appearance')),
+        education: String(fd.get('education') || ''),
+        job: String(fd.get('job') || '').trim(),
+        annualIncome: Number(fd.get('annualIncome')),
+        relationshipHistory: String(fd.get('relationshipHistory') || '').trim()
+      };
+
+      if (!profile.city || !profile.education || !profile.job) {
+        alert('请把所有必填项填完');
+        return;
+      }
+
+      document.getElementById('form-section').classList.add('hidden');
+      document.getElementById('loading').classList.remove('hidden');
+
+      try {
+        const result = await callDeepSeek(profile, apiKey);
+        renderResult(profile, result);
+      } catch (err) {
+        showError(err.message || String(err));
+      }
+    });
+
+    async function callDeepSeek(profile, apiKey) {
+      const systemPrompt = `你是一位资深婚恋咨询师，有 15 年相亲市场经验，熟悉一二三四线城市婚恋偏好。
+你的任务是基于用户资料给出客观、专业、有温度的评分和建议。
+要求：
+1. 评分要反映真实市场偏好（不要灌鸡汤）
+2. 建议要具体可执行（不要"做自己"这种空话）
+3. 语气温和但直接，避免说教
+4. 必须以 JSON 格式返回，不要有任何 JSON 之外的文字`;
+
+      const userPrompt = `请基于以下用户资料，给出相亲市场评分和建议。
+
+【用户资料】
+城市：${profile.city}
+年龄：${profile.age} 岁
+身高：${profile.heightCm} cm
+体重：${profile.weightKg} kg
+外形自评：${profile.appearance}/10
+学历：${profile.education}
+工作：${profile.job}
+年收入：${profile.annualIncome} 元
+情感经历：${profile.relationshipHistory || "（未填写）"}
+
+【输出 JSON 字段】
+{
+  "overallScore": 0-100 的综合分（整数）,
+  "dimensionScores": {
+    "appearance": 外形分 0-100,
+    "economy": 经济分 0-100,
+    "career": 事业分 0-100,
+    "experience": 阅历分 0-100
+  },
+  "strengths": ["加分项 1", "加分项 2", "加分项 3"],
+  "weaknesses": ["减分项 1", "减分项 2", "减分项 3"],
+  "summary": "一句话犀利总结（20 字以内）",
+  "advice": "200-300 字情感建议，分 3 段：1)当前定位 2)如何扬长 3)如何补短"
+}
+
+只返回 JSON，不要任何解释。`;
+
+      const body = {
+        model: "deepseek-chat",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.4,
+        max_tokens: 2000
+      };
+
+      const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      };
+
+      // 优先直接调，CORS 失败时走 proxy
+      let res;
+      try {
+        res = await fetch(DIRECT_URL, { method: "POST", headers, body: JSON.stringify(body) });
+      } catch (directErr) {
+        console.warn("直接调用失败，尝试 CORS proxy:", directErr);
+        try {
+          res = await fetch(PROXY_URL, { method: "POST", headers, body: JSON.stringify(body) });
+        } catch (proxyErr) {
+          throw new Error("网络请求失败：浏览器可能拦截了跨域请求。请装 Allow CORS 扩展后重试。");
+        }
+      }
+
+      if (!res.ok) {
+        const err = await res.text();
+        // 友好错误处理
+        if (res.status === 401) throw new Error("API key 无效或已过期，请检查后重输");
+        if (res.status === 429) throw new Error("请求太频繁，被限流了。稍等几秒重试");
+        if (res.status === 402) throw new Error("账户余额不足，请去 DeepSeek 充值");
+        throw new Error(`API 错误 ${res.status}: ${err.slice(0, 200)}`);
+      }
+
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content ?? "{}";
+      const cleaned = content.trim()
+        .replace(/^```json\s*/i, "")
+        .replace(/^```\s*/, "")
+        .replace(/```\s*$/, "");
+
+      try {
+        return JSON.parse(cleaned);
+      } catch {
+        throw new Error("AI 返回的数据格式异常，请重试");
+      }
+    }
+
+    // ============================================================
+    //  渲染
+    // ============================================================
+    function colorFor(score) {
+      if (score >= 80) return "#10b981";
+      if (score >= 60) return "#ec4899";
+      if (score >= 40) return "#f59e0b";
+      return "#ef4444";
+    }
+
+    function renderResult(profile, result) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('result').classList.remove('hidden');
+
+      const score = Math.max(0, Math.min(100, Math.round(result.overallScore || 0)));
+      const color = colorFor(score);
+      const r = 60, c = 2 * Math.PI * r, offset = c * (1 - score / 100);
+      document.getElementById('score-wrap').innerHTML = `
+        <svg width="140" height="140" viewBox="0 0 140 140" style="transform: rotate(-90deg);">
+          <circle cx="70" cy="70" r="${r}" stroke="#f3f4f6" stroke-width="10" fill="none"/>
+          <circle cx="70" cy="70" r="${r}" stroke="${color}" stroke-width="10" fill="none"
+            stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${offset}"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-size:36px;font-weight:bold;color:${color};line-height:1;">${score}</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">综合分</div>
+        </div>
+      `;
+
+      document.getElementById('summary').textContent = result.summary || "—";
+      document.getElementById('profile-info').textContent =
+        `${profile.city} · ${profile.age} 岁 · ${profile.education} · 年入 ${profile.annualIncome.toLocaleString()}`;
+
+      const dims = result.dimensionScores || {};
+      const dimList = [
+        { label: '外形', value: dims.appearance || 0 },
+        { label: '经济', value: dims.economy || 0 },
+        { label: '事业', value: dims.career || 0 },
+        { label: '阅历', value: dims.experience || 0 }
+      ];
+      document.getElementById('dimensions').innerHTML = dimList.map(d => {
+        const c = colorFor(d.value);
+        return `
+          <div class="field" style="margin-bottom: 14px;">
+            <div class="dim-label">
+              <span>${d.label}</span><span>${d.value} 分</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" style="width:${d.value}%;background:${c};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const list = (items, dotColor) => (items || [])
+        .map(s => `<li class="list-item"><span style="color:${dotColor};font-weight:bold;">•</span><span>${escapeHtml(s)}</span></li>`)
+        .join('');
+      document.getElementById('strengths').innerHTML = list(result.strengths, '#059669');
+      document.getElementById('weaknesses').innerHTML = list(result.weaknesses, '#ea580c');
+
+      document.getElementById('advice').textContent = result.advice || "（AI 没生成建议，请重试）";
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showError(msg) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('error').classList.remove('hidden');
+      document.getElementById('error-msg').textContent = msg;
+      if (/cors|failed to fetch|networkerror|网络请求失败/i.test(msg)) {
+        document.getElementById('error-hint').style.display = 'block';
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+  </script>
+</body>
+</html>
