@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Design Mode — 网页预览编辑器</title>
+<style>
+:root{--bg:#fafafa;--bg-card:#fff;--text:#1a1a1a;--text-2:#6b7280;--text-3:#9ca3af;--accent:#f97316;--accent-dark:#ea580c;--primary:#3b82f6;--line:rgba(0,0,0,.08);--shadow:0 4px 16px rgba(0,0,0,.06);--radius:12px;--mono:ui-monospace,"SF Mono",Menlo,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+.app{display:grid;grid-template-rows:48px 1fr;height:100vh}
+.topbar{background:var(--bg-card);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 16px;gap:12px}
+.topbar h1{font-size:14px;font-weight:600}
+.topbar input{flex:1;max-width:600px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;outline:none;font-family:var(--mono)}
+.topbar input:focus{border-color:var(--primary)}
+.topbar button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg-card);cursor:pointer;font-size:13px}
+.topbar button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.topbar button:hover{border-color:var(--primary)}
+
+.main{display:grid;grid-template-columns:1fr 380px;border-top:1px solid var(--line);overflow:hidden}
+.preview{background:#fff;position:relative;overflow:hidden}
+.preview iframe{width:100%;height:100%;border:0;background:#fff}
+.preview .empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-3);flex-direction:column;gap:12px}
+.preview .empty button{padding:8px 16px;border-radius:8px;background:var(--primary);color:#fff;border:none;cursor:pointer}
+
+.panel{background:var(--bg-card);border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+.panel .panel-header{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:space-between}
+.panel .panel-header .count{background:var(--bg);color:var(--text-2);font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.panel .panel-body{flex:1;overflow-y:auto;padding:8px}
+
+.section{margin-bottom:16px}
+.section-title{font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;padding:8px 8px 4px}
+
+.element{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:6px;cursor:pointer;transition:all .12s}
+.element:hover{border-color:var(--primary);background:var(--bg-card)}
+.element.selected{border-color:var(--primary);background:#eff6ff;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.element .tag{font-family:var(--mono);font-size:11px;color:var(--primary);font-weight:600}
+.element .text{font-size:13px;color:var(--text);margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.element .meta{font-size:11px;color:var(--text-3);margin-top:4px;font-family:var(--mono);display:flex;gap:6px;flex-wrap:wrap}
+.element .meta span{background:rgba(0,0,0,.04);padding:1px 6px;border-radius:4px}
+
+.empty-state{padding:24px;text-align:center;color:var(--text-3);font-size:13px}
+
+.btn{padding:6px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg-card);cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{border-color:var(--primary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn.danger{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+
+.actions{display:flex;gap:6px;padding:8px 16px;border-top:1px solid var(--line);background:var(--bg-card)}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--bg-card);border-radius:16px;max-width:560px;width:90%;max-height:80vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:16px}
+.modal label{display:block;font-size:13px;color:var(--text-2);margin-bottom:6px}
+.modal textarea{width:100%;min-height:120px;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;resize:vertical;font-family:inherit}
+.modal .preview-box{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0;font-family:var(--mono);font-size:11px;line-height:1.6;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto}
+.modal .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.modal .modal-actions button{padding:8px 16px;border-radius:8px;border:1px solid var(--line);background:var(--bg-card);cursor:pointer;font-size:13px}
+.modal .modal-actions button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:2000;animation:toastIn .2s}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+.overlay-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:1500;display:none}
+.overlay-hint.show{display:block}
+
+pre{font-family:var(--mono);font-size:11px;background:var(--bg);padding:8px;border-radius:6px;overflow:auto;max-height:200px;line-height:1.5}
+
+.divider{height:1px;background:var(--line);margin:12px 0}
+
+.tag-badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;background:#eef2ff;color:#4338ca;font-family:var(--mono);font-weight:600;margin-right:4px}
+.tag-badge.attr{background:#fef3c7;color:#92400e}
+.tag-badge.editable{background:#dcfce7;color:#15803d}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- 顶部 -->
+<div class="topbar">
+  <h1>🎨 Design Mode</h1>
+  <input type="text" id="urlInput" value="https://luoyangpenglong.github.io/" placeholder="输入网页 URL,按 Enter 加载">
+  <button class="primary" onclick="loadUrl()">加载</button>
+  <button onclick="reloadPreview()">↻</button>
+  <span style="color:var(--text-3);font-size:11px;margin-left:auto" id="statusText">就绪</span>
+</div>
+
+<!-- 主体 -->
+<div class="main">
+
+  <!-- 预览 -->
+  <div class="preview" id="previewArea">
+    <iframe id="previewFrame" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+  </div>
+
+  <!-- 右侧面板 -->
+  <div class="panel">
+    <div class="panel-header">
+      <span>元素</span>
+      <span class="count" id="elementCount">0</span>
+    </div>
+    <div class="panel-body" id="panelBody">
+      <div class="empty-state">
+        加载 URL 后<br>这里会列出可编辑元素<br><br>
+        <span style="font-size:11px">提示 — GitHub Pages 页面是静态 HTML,<br>
+        可识别 <code>.editable</code> 元素 + 所有文字节点</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="copyCurrentHtml()">复制当前 HTML</button>
+      <button class="btn primary" onclick="openAskModal()">@ Mavis 修改</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- 浮层提示 -->
+<div class="overlay-hint" id="overlayHint"></div>
+
+<!-- @ Mavis 修改弹窗 -->
+<div class="modal-bg" id="askModal">
+  <div class="modal">
+    <h2>🤖 让 Mavis 帮你修改</h2>
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:12px">已选中元素 → 描述修改需求 → 复制请求 → 粘到 mavis 聊天里发给我</p>
+
+    <label>当前选中元素</label>
+    <div class="preview-box" id="modalSelected">未选中</div>
+
+    <label>URL</label>
+    <div class="preview-box" id="modalUrl">-</div>
+
+    <label>修改需求 <span style="color:var(--text-3)">(必填,说清楚要改成什么样)</span></label>
+    <textarea id="modalRequest" placeholder="例如:把这一行的标题改成「作品集」;换一张图片;颜色用蓝色..."></textarea>
+
+    <label style="margin-top:12px">生成的请求 (点击复制按钮复制)</label>
+    <pre id="modalOutput"></pre>
+
+    <div class="modal-actions">
+      <button onclick="closeAskModal()">取消</button>
+      <button onclick="copyRequest()">📋 复制请求</button>
+      <button class="primary" onclick="copyAndGoMavis()">复制 + 打开 mavis</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let parsedDoc = null;
+let currentUrl = '';
+let elements = [];   // 所有可点击的元素
+let selected = null;  // 当前选中的元素描述 {tag, classes, data-edit, text, xpath, cssPath}
+
+// ===== Toast =====
+function toast(msg, ms=1800) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+
+// ===== 加载 URL =====
+function loadUrl() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) return toast('URL 不能为空');
+  if (!url.startsWith('http')) return toast('URL 必须以 http 开头');
+
+  currentUrl = url;
+  document.getElementById('statusText').textContent = '加载中...';
+
+  // 优先用 iframe 直接加载 (能看到实际效果)
+  const iframe = document.getElementById('previewFrame');
+  iframe.src = url;
+  iframe.onload = () => {
+    document.getElementById('statusText').textContent = '已加载: ' + url;
+    fetchAndParse(url);
+  };
+  iframe.onerror = () => {
+    document.getElementById('statusText').textContent = 'iframe 加载失败,尝试 fetch';
+    fetchAndParse(url);
+  };
+}
+
+function reloadPreview() {
+  const iframe = document.getElementById('previewFrame');
+  iframe.src = iframe.src;  // 强制刷新
+}
+
+// ===== Fetch + 解析 =====
+async function fetchAndParse(url) {
+  try {
+    const r = await fetch(url);
+    const html = await r.text();
+    const parser = new DOMParser();
+    parsedDoc = parser.parseFromString(html, 'text/html');
+    extractElements(parsedDoc);
+    renderPanel();
+    toast(`解析成功,找到 ${elements.length} 个可编辑元素`);
+  } catch (e) {
+    document.getElementById('statusText').textContent = 'fetch 失败: ' + e.message;
+    // CORS 时只能用 iframe 看
+    toast('CORS 限制,只能看 iframe 不能解析');
+  }
+}
+
+// ===== 提取可编辑元素 =====
+function extractElements(doc) {
+  elements = [];
+  if (!doc) return;
+
+  // 1. 所有 .editable 元素 (这个项目有)
+  doc.querySelectorAll('.editable').forEach((el, i) => {
+    const rect = el.getBoundingClientRect ? null : null;  // 解析的 DOM 没有 rect
+    elements.push({
+      idx: elements.length,
+      kind: 'editable',
+      tag: el.tagName.toLowerCase(),
+      classes: el.className,
+      dataEdit: el.getAttribute('data-edit') || '',
+      text: (el.textContent || '').trim().slice(0, 100),
+      xpath: getXPath(el),
+      cssPath: getCssPath(el),
+      id: el.id || '',
+      html: el.outerHTML.slice(0, 300),
+      domEl: el,
+    });
+  });
+
+  // 2. 重要结构:标题, 段落, 按钮文字, 链接
+  const importantTags = ['H1', 'H2', 'H3', 'H4', 'P', 'BUTTON', 'A', 'SPAN', 'LI'];
+  doc.querySelectorAll(importantTags.join(',')).forEach(el => {
+    const text = (el.textContent || '').trim();
+    if (text.length < 2 || text.length > 200) return;
+    // 跳过已在 .editable 里的
+    if (el.closest('.editable')) return;
+    // 跳过隐藏元素
+    if (el.style && el.style.display === 'none') return;
+
+    elements.push({
+      idx: elements.length,
+      kind: 'text',
+      tag: el.tagName.toLowerCase(),
+      classes: el.className,
+      dataEdit: '',
+      text,
+      xpath: getXPath(el),
+      cssPath: getCssPath(el),
+      id: el.id || '',
+      html: el.outerHTML.slice(0, 300),
+      domEl: el,
+    });
+  });
+}
+
+// ===== XPath/CSS 路径 =====
+function getXPath(el) {
+  if (!el || el.nodeType !== 1) return '';
+  if (el.id) return `//*[@id="${el.id}"]`;
+  const parts = [];
+  let cur = el;
+  while (cur && cur.nodeType === 1 && cur.tagName !== 'BODY') {
+    let part = cur.tagName.toLowerCase();
+    if (cur.parentElement) {
+      const sibs = Array.from(cur.parentElement.children).filter(c => c.tagName === cur.tagName);
+      if (sibs.length > 1) {
+        const idx = sibs.indexOf(cur) + 1;
+        part += `[${idx}]`;
+      }
+    }
+    parts.unshift(part);
+    cur = cur.parentElement;
+  }
+  return '//' + parts.join('/');
+}
+
+function getCssPath(el) {
+  if (!el || el.nodeType !== 1) return '';
+  if (el.id) return `#${el.id}`;
+  const parts = [];
+  let cur = el;
+  while (cur && cur.nodeType === 1 && cur.tagName !== 'BODY') {
+    let part = cur.tagName.toLowerCase();
+    if (cur.className && typeof cur.className === 'string') {
+      const cls = cur.className.trim().split(/\s+/).slice(0, 2).join('.');
+      if (cls) part += '.' + cls;
+    }
+    parts.unshift(part);
+    cur = cur.parentElement;
+  }
+  return parts.join(' > ');
+}
+
+// ===== 渲染右侧面板 =====
+function renderPanel() {
+  const body = document.getElementById('panelBody');
+  document.getElementById('elementCount').textContent = elements.length;
+
+  if (elements.length === 0) {
+    body.innerHTML = '<div class="empty-state">没找到可编辑元素<br><br><span style="font-size:11px">可能 URL 不对或页面跨域 fetch 失败</span></div>';
+    return;
+  }
+
+  // 按 type 分组: editable 优先
+  const editables = elements.filter(e => e.kind === 'editable');
+  const texts = elements.filter(e => e.kind === 'text').slice(0, 50);
+
+  let html = '';
+
+  if (editables.length > 0) {
+    html += '<div class="section"><div class="section-title">📝 可编辑 (.editable) — ' + editables.length + '</div>';
+    editables.forEach(el => {
+      html += renderElement(el);
+    });
+    html += '</div>';
+  }
+
+  if (texts.length > 0) {
+    html += '<div class="section"><div class="section-title">📄 文字元素 — ' + texts.length + (editables.length ? ' (前 50)' : '') + '</div>';
+    texts.forEach(el => {
+      html += renderElement(el);
+    });
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+}
+
+function renderElement(el) {
+  const badges = [];
+  badges.push(`<span class="tag-badge">${el.tag}</span>`);
+  if (el.id) badges.push(`<span class="tag-badge attr">#${el.id}</span>`);
+  if (el.classes) badges.push(`<span class="tag-badge attr">.${el.classes.split(/\s+/)[0] || ''}</span>`);
+  if (el.dataEdit) badges.push(`<span class="tag-badge editable">${el.dataEdit}</span>`);
+
+  return `
+    <div class="element ${selected && selected.xpath === el.xpath ? 'selected' : ''}" data-idx="${el.idx}" onclick="selectElement(${el.idx})">
+      <div>${badges.join('')}</div>
+      <div class="text">${escapeHTML(el.text || '(无文字)')}</div>
+      <div class="meta"><span>${el.xpath}</span></div>
+    </div>
+  `;
+}
+
+function escapeHTML(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===== 选中元素 =====
+function selectElement(idx) {
+  selected = elements.find(e => e.idx === idx);
+  if (!selected) return;
+
+  // 高亮面板
+  document.querySelectorAll('.element').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.idx) === idx);
+  });
+
+  // 显示浮层提示
+  showHint(`已选中: <${selected.tag}> "${selected.text.slice(0, 30)}"`);
+
+  toast(`已选中 <${selected.tag}>`);
+}
+
+function showHint(html) {
+  const h = document.getElementById('overlayHint');
+  h.innerHTML = html;
+  h.classList.add('show');
+  setTimeout(() => h.classList.remove('show'), 2500);
+}
+
+// ===== 复制当前 HTML =====
+function copyCurrentHtml() {
+  const iframe = document.getElementById('previewFrame');
+  try {
+    const html = iframe.contentDocument.documentElement.outerHTML;
+    navigator.clipboard.writeText(html);
+    toast('已复制当前 iframe HTML 到剪贴板');
+  } catch (e) {
+    toast('跨域限制,无法读取 iframe HTML');
+  }
+}
+
+// ===== @ Mavis 修改 =====
+function openAskModal() {
+  if (!selected) return toast('请先在右侧面板选中一个元素');
+  document.getElementById('modalSelected').textContent =
+    `<${selected.tag}${selected.id ? ' id="'+selected.id+'"' : ''}${selected.classes ? ' class="'+selected.classes+'"' : ''}${selected.dataEdit ? ' data-edit="'+selected.dataEdit+'"' : ''}>${selected.text}</${selected.tag}>`;
+  document.getElementById('modalUrl').textContent = currentUrl;
+  document.getElementById('modalRequest').value = '';
+  updateModalOutput();
+  document.getElementById('askModal').classList.add('show');
+}
+
+function closeAskModal() {
+  document.getElementById('askModal').classList.remove('show');
+}
+
+document.getElementById('modalRequest').addEventListener('input', updateModalOutput);
+
+function updateModalOutput() {
+  const request = document.getElementById('modalRequest').value.trim();
+  const output = document.getElementById('modalOutput');
+
+  if (!selected) {
+    output.textContent = '未选中元素';
+    return;
+  }
+
+  const payload = {
+    url: currentUrl,
+    element: {
+      tag: selected.tag,
+      id: selected.id,
+      classes: selected.classes,
+      dataEdit: selected.dataEdit,
+      xpath: selected.xpath,
+      cssPath: selected.cssPath,
+      currentText: selected.text,
+      currentHTML: selected.html,
+    },
+    request: request,
+  };
+
+  output.textContent = JSON.stringify(payload, null, 2);
+}
+
+function copyRequest() {
+  const text = document.getElementById('modalOutput').textContent;
+  if (!text || text === '未选中元素') return toast('没有可复制的请求');
+  navigator.clipboard.writeText(text);
+  toast('已复制请求到剪贴板,粘到 mavis 聊天里发给我');
+}
+
+function copyAndGoMavis() {
+  copyRequest();
+  setTimeout(() => {
+    // 尝试打开 mavis 客户端,带 session 信息
+    // 这里我们用 web 链接形式,真正能不能跳转取决于用户客户端
+    window.open('https://mavis.local/chat', '_blank');
+  }, 300);
+}
+
+// ===== Enter 键加载 =====
+document.getElementById('urlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadUrl();
+});
+
+// ===== 初始化:自动加载 GitHub Pages =====
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(loadUrl, 100);
+});
+
+</script>
+</body>
+</html>
